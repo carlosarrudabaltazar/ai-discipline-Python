@@ -1,7 +1,7 @@
 import GraphTools;
 import sys
 
-class BreadthFirstSearch (object):
+class BlindSearch (object):
     def __init__(self,
                  graph:GraphTools.Graph,
                  start:str):
@@ -9,6 +9,13 @@ class BreadthFirstSearch (object):
         self.start = start;
         self.nodes = None;
         self.queue = [];
+
+class BreadthFirstSearch (BlindSearch):
+    def __init__(self,
+                 graph:GraphTools.Graph,
+                 start:str):
+        super().__init__(graph,
+                         start);
         
     def search(self):
         currNode = "";
@@ -43,8 +50,59 @@ class BreadthFirstSearch (object):
             self.nodes[currNode].color = GraphTools.NodeColor.black;
             
         return self.nodes;
+    
+class InDepthSearch (BlindSearch):
+    def __init__(self,
+                 graph:GraphTools.Graph,
+                 start:str):
+        super().__init__(graph,
+                         start);
+        self.time = 0;
         
-def createGraph() -> GraphTools.Graph:
+    def visitNode(self,
+                  node:GraphTools.Node):
+        node.color = GraphTools.NodeColor.gray;
+        self.time += 1;
+        node.distance = self.time;
+        
+        adjacentNodes = self.graph.adjacenceList[node.node];
+        
+        for adjacentNodeName in adjacentNodes:
+            adjacentNode = self.nodes[adjacentNodeName];
+            if adjacentNode.color == GraphTools.NodeColor.white:
+                self.nodes[adjacentNodeName].root = node.node;
+                self.visitNode(self.nodes[adjacentNodeName]);
+                
+        node.color = GraphTools.NodeColor.black;
+        self.time += 1;
+        node.distance = self.time;
+        
+        self.nodes[node.node] = node;
+            
+        
+    def search(self) -> list:
+        self.nodes = {self.start:
+                      GraphTools.Node(self.start,
+                                      GraphTools.NodeColor.gray,
+                                      1,
+                                      "NhR")};
+        self.time += 1;
+        
+        for node in list(self.graph.adjacenceList.keys()):
+            if node != self.start:
+                self.nodes.update({node:
+                                   GraphTools.Node(node,
+                                                   GraphTools.NodeColor.white,
+                                                   sys.maxsize,
+                                                   "NhR")});
+
+        for node in list(self.nodes.values()):
+            if node.color == GraphTools.NodeColor.white:
+                self.visitNode(node);
+            
+        return self.nodes;
+      
+def createGraphA() -> GraphTools.Graph:
     graph = GraphTools.Graph();
     graph.addNode("v",
                   ["r"]); 
@@ -64,16 +122,42 @@ def createGraph() -> GraphTools.Graph:
                   ["x" , "u"]);
     
     return graph
+
+def createGraphB() -> GraphTools.Graph:
+    graph = GraphTools.Graph();
+    graph.addNode("a",
+                  ["b", "d", "e"]); 
+    graph.addNode("b",
+                  ["c", "e"]);
+    graph.addNode("c",
+                  ["a"]);
+    graph.addNode("d",
+                  ["e", "h"]);
+    graph.addNode("e",
+                  ["c"]);
+    graph.addNode("f",
+                  ["d", "g", "h"]);
+    graph.addNode("g",
+                  ["e"]);
+    graph.addNode("h",
+                  ["e"]);
+    
+    return graph
         
 def main():
     path = None;
-    graph = createGraph();
-    startNode = input("Please, set the desired start node from [r,s,t,u,v,w,x,y]:\n");
-    searchAlgorithmChoose = int(input("Please, select the desired blind search algorithm:\n\t1-Breadth First Search\n"));
+    graphA = createGraphA();
+    graphB = createGraphB();
+    startNode = input("Please, set the desired start node from: ");
+    searchAlgorithmChoose = int(input("Please, select the desired blind search algorithm:\n\t1-Breadth First Search\n\t2-In-depth Search\n"));
     
     if searchAlgorithmChoose == 1:
-        searchAlgorithm = BreadthFirstSearch(graph,
+        searchAlgorithm = BreadthFirstSearch(graphA,
                                              startNode);
+        distancies = searchAlgorithm.search();
+    if searchAlgorithmChoose == 2:
+        searchAlgorithm = InDepthSearch(graphB,
+                                        startNode);
         distancies = searchAlgorithm.search();
     else:
         print("Invalid version!");
