@@ -110,30 +110,33 @@ class LimitedInDepthSearch (BlindSearch):
         super().__init__(graph,
                          start);
         self.limit = limit;
+        self.level = 0;
         self.time = 0;
+        self.resultNodes = {};
         
     def visitNode(self,
-                  node:GraphTools.Node,
-                  level:int):
-        node.color = GraphTools.NodeColor.gray;
-        self.time += 1;
-        node.distance = self.time;
+                  node:GraphTools.Node):
+        if self.level < self.limit:  
+            node.color = GraphTools.NodeColor.gray;
+            self.time += 1;
+            self.level += 1;
+            node.distance = self.time;
         
         adjacentNodes = self.graph.adjacenceList[node.node];
         
         for adjacentNodeName in adjacentNodes:
-            if level < self.limit:
+            if self.level < self.limit:
                 adjacentNode = self.nodes[adjacentNodeName];
                 if adjacentNode.color == GraphTools.NodeColor.white:
                     self.nodes[adjacentNodeName].root = node.node;
-                    self.visitNode(self.nodes[adjacentNodeName],
-                                   level + 1);
-                
-        node.color = GraphTools.NodeColor.black;
-        self.time += 1;
-        node.distance = self.time;
-        
-        self.nodes[node.node] = node;
+                    self.visitNode(self.nodes[adjacentNodeName]);
+
+        if self.level < self.limit:        
+            node.color = GraphTools.NodeColor.black;
+            self.time += 1;
+            node.distance = self.time;
+            
+            self.nodes[node.node] = node;
             
         
     def search(self) -> list:
@@ -143,7 +146,6 @@ class LimitedInDepthSearch (BlindSearch):
                                       1,
                                       "NhR")};
         self.time += 1;
-        level = 0;
         
         for node in list(self.graph.adjacenceList.keys()):
             if node != self.start:
@@ -155,7 +157,7 @@ class LimitedInDepthSearch (BlindSearch):
 
         for node in list(self.nodes.values()):
             if node.color == GraphTools.NodeColor.white:
-                self.visitNode(node, level + 1);
+                self.visitNode(node);
             
         return self.nodes;
       
