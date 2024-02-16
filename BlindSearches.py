@@ -101,6 +101,63 @@ class InDepthSearch (BlindSearch):
                 self.visitNode(node);
             
         return self.nodes;
+
+class LimitedInDepthSearch (BlindSearch):
+    def __init__(self,
+                 graph:GraphTools.Graph,
+                 start:str,
+                 limit:int):
+        super().__init__(graph,
+                         start);
+        self.limit = limit;
+        self.time = 0;
+        
+    def visitNode(self,
+                  node:GraphTools.Node,
+                  level:int):
+        node.color = GraphTools.NodeColor.gray;
+        self.time += 1;
+        node.distance = self.time;
+        
+        adjacentNodes = self.graph.adjacenceList[node.node];
+        
+        for adjacentNodeName in adjacentNodes:
+            if level < self.limit:
+                adjacentNode = self.nodes[adjacentNodeName];
+                if adjacentNode.color == GraphTools.NodeColor.white:
+                    self.nodes[adjacentNodeName].root = node.node;
+                    self.visitNode(self.nodes[adjacentNodeName],
+                                   level + 1);
+                
+        node.color = GraphTools.NodeColor.black;
+        self.time += 1;
+        node.distance = self.time;
+        
+        self.nodes[node.node] = node;
+            
+        
+    def search(self) -> list:
+        self.nodes = {self.start:
+                      GraphTools.Node(self.start,
+                                      GraphTools.NodeColor.gray,
+                                      1,
+                                      "NhR")};
+        self.time += 1;
+        level = 0;
+        
+        for node in list(self.graph.adjacenceList.keys()):
+            if node != self.start:
+                self.nodes.update({node:
+                                   GraphTools.Node(node,
+                                                   GraphTools.NodeColor.white,
+                                                   sys.maxsize,
+                                                   "NhR")});
+
+        for node in list(self.nodes.values()):
+            if node.color == GraphTools.NodeColor.white:
+                self.visitNode(node, level + 1);
+            
+        return self.nodes;
       
 def createGraphA() -> GraphTools.Graph:
     graph = GraphTools.Graph();
@@ -149,15 +206,21 @@ def main():
     graphA = createGraphA();
     graphB = createGraphB();
     startNode = input("Please, set the desired start node from: ");
-    searchAlgorithmChoose = int(input("Please, select the desired blind search algorithm:\n\t1-Breadth First Search\n\t2-In-depth Search\n"));
+    searchAlgorithmChoose = int(input("Please, select the desired blind search algorithm:\n\t1-Breadth First Search\n\t2-In-depth Search\n\t3-Limited In-depth Search\n"));
     
     if searchAlgorithmChoose == 1:
         searchAlgorithm = BreadthFirstSearch(graphA,
                                              startNode);
         distancies = searchAlgorithm.search();
-    if searchAlgorithmChoose == 2:
+    elif searchAlgorithmChoose == 2:
         searchAlgorithm = InDepthSearch(graphB,
                                         startNode);
+        distancies = searchAlgorithm.search();
+    elif searchAlgorithmChoose == 3:
+        limit = int(input("Please set the search limit: "));
+        searchAlgorithm = LimitedInDepthSearch(graphB,
+                                               startNode,
+                                               limit);
         distancies = searchAlgorithm.search();
     else:
         print("Invalid version!");
