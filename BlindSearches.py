@@ -102,6 +102,77 @@ class InDepthSearch (BlindSearch):
             
         return self.nodes;
 
+class IterativeInDepthSearch (BlindSearch):
+    def __init__(self,
+                 graph:GraphTools.Graph,
+                 start:str,
+                 destiny:str):
+        super().__init__(graph,
+                         start);
+        self.destiny = destiny;
+        self.time = 0;
+        self.limit = 1;
+        self.foundDestiny = False;
+        
+    def visitNode(self,
+                  node:GraphTools.Node,
+                  level:int):
+        node.color = GraphTools.NodeColor.gray;
+        self.time += 1;
+        node.distance = self.time;
+        
+        adjacentNodes = self.graph.adjacenceList[node.node];
+        
+        for adjacentNodeName in adjacentNodes:
+            if level < self.limit and self.foundDestiny == False:
+                adjacentNode = self.nodes[adjacentNodeName];
+                if adjacentNode.color == GraphTools.NodeColor.white:
+                    self.nodes[adjacentNodeName].root = node.node;
+                    self.visitNode(self.nodes[adjacentNodeName],
+                                   level + 1);
+            else:
+                if node.node == self.destiny:
+                    self.foundDestiny = True;
+                else:
+                    break;
+                
+        if self.foundDestiny:
+            node.color = GraphTools.NodeColor.black;
+            self.time += 1;
+            node.distance = self.time;
+        else:
+            self.time += 1;
+            node.distance = self.time;
+            node.color = GraphTools.NodeColor.white;
+        
+        self.nodes[node.node] = node;
+            
+    def search(self) -> list:
+        self.nodes = {self.start:
+                      GraphTools.Node(self.start,
+                                      GraphTools.NodeColor.gray,
+                                      1,
+                                      "NhR")};
+        self.time += 1;
+        level = 0;
+        
+        for node in list(self.graph.adjacenceList.keys()):
+            if node != self.start:
+                self.nodes.update({node:
+                                   GraphTools.Node(node,
+                                                   GraphTools.NodeColor.white,
+                                                   sys.maxsize,
+                                                   "NhR")});
+
+        for node in list(self.nodes.values()):
+            if node.color == GraphTools.NodeColor.white or self.foundDestiny == False:
+                self.visitNode(node, level + 1);
+                self.limit += 1;
+            else:
+                break;
+            
+        return self.nodes;
+    
 class LimitedInDepthSearch (BlindSearch):
     def __init__(self,
                  graph:GraphTools.Graph,
@@ -206,24 +277,35 @@ def main():
     graphA = createGraphA();
     graphB = createGraphB();
     startNode = input("Please, set the desired start node from: ");
-    searchAlgorithmChoose = int(input("Please, select the desired blind search algorithm:\n\t1-Breadth First Search\n\t2-In-depth Search\n\t3-Limited In-depth Search\n"));
+    searchAlgorithmChoose = int(input("Please, select the desired blind search algorithm:\n"+
+                                      "\t1-Breadth First Search\n"+
+                                      "\t2-In-depth Search\n"+
+                                      "\t3-Limited In-depth Search\n"+
+                                      "\t4-Iterative In-depth Search\n"));
     
-    if searchAlgorithmChoose == 1:
-        searchAlgorithm = BreadthFirstSearch(graphA,
-                                             startNode);
-        distancies = searchAlgorithm.search();
-    elif searchAlgorithmChoose == 2:
-        searchAlgorithm = InDepthSearch(graphB,
-                                        startNode);
-        distancies = searchAlgorithm.search();
-    elif searchAlgorithmChoose == 3:
-        limit = int(input("Please set the search limit: "));
-        searchAlgorithm = LimitedInDepthSearch(graphB,
-                                               startNode,
-                                               limit);
-        distancies = searchAlgorithm.search();
-    else:
-        print("Invalid version!");
+    match searchAlgorithmChoose:
+        case 1:
+            searchAlgorithm = BreadthFirstSearch(graphA,
+                                                 startNode);
+            distancies = searchAlgorithm.search();
+        case 2:
+            searchAlgorithm = InDepthSearch(graphB,
+                                            startNode);
+            distancies = searchAlgorithm.search();
+        case 3:
+            limit = int(input("Please set the search limit: "));
+            searchAlgorithm = LimitedInDepthSearch(graphB,
+                                                   startNode,
+                                                   limit);
+            distancies = searchAlgorithm.search();
+        case 4:
+            destiny = input("Please set destiny node: ");
+            searchAlgorithm = IterativeInDepthSearch(graphB,
+                                                     startNode,
+                                                     destiny);
+            distancies = searchAlgorithm.search();
+        case _:
+            print("Invalid version!");
         
     for distance in list(distancies.values()):
         print("The node " + distance.node + " is " + str(distance.distance) + " edges away from node " + startNode);
