@@ -45,7 +45,7 @@ class BreadthFirstSearch (BlindSearch):
                     self.nodes[adjacentNode].color = GraphTools.NodeColor.gray;
                     self.nodes[adjacentNode].distance = self.nodes[currNode].distance + 1;
                     self.nodes[adjacentNode].root = currNode;
-                    self.queue.append(self.nodes[adjacentNode].node) 
+                    self.queue.append(self.nodes[adjacentNode].node);
             
             self.nodes[currNode].color = GraphTools.NodeColor.black;
             
@@ -61,8 +61,8 @@ class InDepthSearch (BlindSearch):
         
     def visitNode(self,
                   node:GraphTools.Node):
-        node.color = GraphTools.NodeColor.gray;
         self.time += 1;
+        node.color = GraphTools.NodeColor.gray;
         node.distance = self.time;
         
         adjacentNodes = self.graph.adjacenceList[node.node];
@@ -81,12 +81,12 @@ class InDepthSearch (BlindSearch):
             
         
     def search(self) -> list:
+        self.time += 1;
         self.nodes = {self.start:
                       GraphTools.Node(self.start,
                                       GraphTools.NodeColor.gray,
-                                      1,
+                                      self.time,
                                       "NhR")};
-        self.time += 1;
         
         for node in list(self.graph.adjacenceList.keys()):
             if node != self.start:
@@ -116,9 +116,9 @@ class IterativeInDepthSearch (BlindSearch):
         
     def visitNode(self,
                   node:GraphTools.Node,
-                  level:int):
-        node.color = GraphTools.NodeColor.gray;
+                  level:int):        
         self.time += 1;
+        node.color = GraphTools.NodeColor.gray;
         node.distance = self.time;
         
         adjacentNodes = self.graph.adjacenceList[node.node];
@@ -141,7 +141,6 @@ class IterativeInDepthSearch (BlindSearch):
             self.time += 1;
             node.distance = self.time;
         else:
-            self.time += 1;
             node.distance = self.time;
             node.color = GraphTools.NodeColor.white;
         
@@ -163,14 +162,13 @@ class IterativeInDepthSearch (BlindSearch):
                                                    GraphTools.NodeColor.white,
                                                    sys.maxsize,
                                                    "NhR")});
+        
+        while self.foundDestiny == False:
+            node = next(iter(self.nodes.values()));
+            self.visitNode(node,
+                           level + 1);
+            self.limit += 1;
 
-        for node in list(self.nodes.values()):
-            if node.color == GraphTools.NodeColor.white or self.foundDestiny == False:
-                self.visitNode(node, level + 1);
-                self.limit += 1;
-            else:
-                break;
-            
         return self.nodes;
     
 class LimitedInDepthSearch (BlindSearch):
@@ -188,8 +186,8 @@ class LimitedInDepthSearch (BlindSearch):
     def visitNode(self,
                   node:GraphTools.Node):
         if self.level < self.limit:  
-            node.color = GraphTools.NodeColor.gray;
             self.time += 1;
+            node.color = GraphTools.NodeColor.gray;
             self.level += 1;
             node.distance = self.time;
         
@@ -211,12 +209,12 @@ class LimitedInDepthSearch (BlindSearch):
             
         
     def search(self) -> list:
+        self.time += 1;
         self.nodes = {self.start:
                       GraphTools.Node(self.start,
                                       GraphTools.NodeColor.gray,
-                                      1,
+                                      self.time,
                                       "NhR")};
-        self.time += 1;
         
         for node in list(self.graph.adjacenceList.keys()):
             if node != self.start:
