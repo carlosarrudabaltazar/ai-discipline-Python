@@ -109,51 +109,61 @@ class IterativeInDepthSearch (BlindSearch):
         super().__init__(graph,
                          start);
         self.destiny = destiny;
-        self.time = 0;
         self.limit = 1;
+        self.time = 0;
+        self.level = 0;
         self.foundDestiny = False;
+        self.resultNodes = {};
         
     def visitNode(self,
-                  node:GraphTools.Node,
-                  level:int):        
-        self.time += 1;
-        node.color = GraphTools.NodeColor.gray;
-        node.distance = self.time;
-        
-        adjacentNodes = self.graph.adjacenceList[node.node];
-        
-        for adjacentNodeName in adjacentNodes:
-            if level < self.limit and self.foundDestiny == False:
-                adjacentNode = self.nodes[adjacentNodeName];
-                if adjacentNode.color == GraphTools.NodeColor.white:
-                    self.nodes[adjacentNodeName].root = node.node;
-                    self.visitNode(self.nodes[adjacentNodeName],
-                                   level + 1);
-            else:
-                if node.node == self.destiny:
-                    self.foundDestiny = True;
-                else:
-                    break;
-                
-        if self.foundDestiny:
+                  node:GraphTools.Node):
+        self.level += 1;   
+        if (self.level <= self.limit) and (not self.foundDestiny):  
+            self.time += 1;
+            node.color = GraphTools.NodeColor.gray;
+            node.distance = self.time;
+        elif self.foundDestiny:
             node.color = GraphTools.NodeColor.black;
             self.time += 1;
             node.distance = self.time;
-        else:
-            node.distance = self.time;
-            node.color = GraphTools.NodeColor.white;
-        
-        self.nodes[node.node] = node;
             
+            self.nodes[node.node] = node;
+            self.level -= 1;
+            return;
+        else:
+            self.level -= 1;
+            return;
+        
+        
+        if (node.node == self.destiny):
+            self.foundDestiny = True;
+        
+        adjacentNodes = self.graph.adjacenceList[node.node];
+
+        for adjacentNodeName in adjacentNodes:
+            adjacentNode = self.nodes[adjacentNodeName];
+            if (adjacentNode.color != GraphTools.NodeColor.black):
+                self.nodes[adjacentNodeName].root = node.node;
+                self.visitNode(self.nodes[adjacentNodeName]);    
+
+        if self.level <= self.limit and self.foundDestiny:        
+            node.color = GraphTools.NodeColor.black;
+            self.time += 1;
+            node.distance = self.time;
+            
+            self.nodes[node.node] = node;
+        else:
+            self.level -= 1;
+            return;
+            
+        
     def search(self) -> list:
         self.nodes = {self.start:
                       GraphTools.Node(self.start,
-                                      GraphTools.NodeColor.gray,
-                                      1,
+                                      GraphTools.NodeColor.white,
+                                      sys.maxsize,
                                       "NhR")};
-        self.time += 1;
-        level = 0;
-        
+                
         for node in list(self.graph.adjacenceList.keys()):
             if node != self.start:
                 self.nodes.update({node:
@@ -161,13 +171,12 @@ class IterativeInDepthSearch (BlindSearch):
                                                    GraphTools.NodeColor.white,
                                                    sys.maxsize,
                                                    "NhR")});
-        
-        while self.foundDestiny == False:
-            node = next(iter(self.nodes.values()));
-            self.visitNode(node,
-                           level + 1);
-            self.limit += 1;
 
+        while self.foundDestiny == False:
+            node = list(self.nodes.values())[0];
+            self.visitNode(node);
+            self.limit += 1;
+            
         return self.nodes;
     
 class LimitedInDepthSearch (BlindSearch):
