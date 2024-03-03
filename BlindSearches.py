@@ -178,28 +178,31 @@ class LimitedInDepthSearch (BlindSearch):
         super().__init__(graph,
                          start);
         self.limit = limit;
-        self.level = 0;
         self.time = 0;
+        self.reachedLimit = False;
         self.resultNodes = {};
         
     def visitNode(self,
-                  node:GraphTools.Node):
-        if self.level < self.limit:  
+                  node:GraphTools.Node,
+                  level:int):   
+        if level <= self.limit:  
             self.time += 1;
             node.color = GraphTools.NodeColor.gray;
-            self.level += 1;
             node.distance = self.time;
+        else:
+            self.reachedLimit = True;
+            return;
         
         adjacentNodes = self.graph.adjacenceList[node.node];
         
         for adjacentNodeName in adjacentNodes:
-            if self.level < self.limit:
-                adjacentNode = self.nodes[adjacentNodeName];
-                if adjacentNode.color == GraphTools.NodeColor.white:
-                    self.nodes[adjacentNodeName].root = node.node;
-                    self.visitNode(self.nodes[adjacentNodeName]);
+            adjacentNode = self.nodes[adjacentNodeName];
+            if adjacentNode.color == GraphTools.NodeColor.white:
+                self.nodes[adjacentNodeName].root = node.node;
+                self.visitNode(self.nodes[adjacentNodeName],
+                               level + 1);    
 
-        if self.level < self.limit:        
+        if level <= self.limit:        
             node.color = GraphTools.NodeColor.black;
             self.time += 1;
             node.distance = self.time;
@@ -208,13 +211,12 @@ class LimitedInDepthSearch (BlindSearch):
             
         
     def search(self) -> list:
-        self.time += 1;
         self.nodes = {self.start:
                       GraphTools.Node(self.start,
-                                      GraphTools.NodeColor.gray,
-                                      self.time,
+                                      GraphTools.NodeColor.white,
+                                      sys.maxsize,
                                       "NhR")};
-        
+                
         for node in list(self.graph.adjacenceList.keys()):
             if node != self.start:
                 self.nodes.update({node:
@@ -224,8 +226,9 @@ class LimitedInDepthSearch (BlindSearch):
                                                    "NhR")});
 
         for node in list(self.nodes.values()):
-            if node.color == GraphTools.NodeColor.white:
-                self.visitNode(node);
+            if node.color == GraphTools.NodeColor.white and (not self.reachedLimit):
+                self.visitNode(node,
+                               1);
             
         return self.nodes;
       
