@@ -81,11 +81,10 @@ class InDepthSearch (BlindSearch):
             
         
     def search(self) -> list:
-        self.time += 1;
         self.nodes = {self.start:
                       GraphTools.Node(self.start,
-                                      GraphTools.NodeColor.gray,
-                                      self.time,
+                                      GraphTools.NodeColor.white,
+                                      sys.maxsize,
                                       "NhR")};
         
         for node in list(self.graph.adjacenceList.keys()):
