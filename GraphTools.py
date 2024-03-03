@@ -9,12 +9,28 @@ class Node (object):
     def __init__(self,
                  node:str,
                  color:NodeColor,
-                 distance:int,
+                 distance:float,
                  root:str):
         self.node = node;
         self.color = color;
         self.distance = distance;
         self.root = root;
+
+class HeuristicNode (Node):
+    def __init__(self,
+                 node:str,
+                 color:NodeColor,
+                 distance:float,
+                 heuristic:float,
+                 cost:float,
+                 root:str):
+        super().__init__(node,
+                         color,
+                         distance,
+                         root);
+        self.heuristic = heuristic;
+        self.cost = cost;
+        
 
 class Graph (object):
     def __init__(self):
