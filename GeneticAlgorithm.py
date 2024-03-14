@@ -49,10 +49,17 @@ class Individual (object):
     def resetTargetFunction(self):
         self.targetFunction = 0;
 
+    def mutate(self):
+        self.chromosome[random.randint(0,len(self.chromosome) - 1)] = random.randint(0,255);
+
+    def getWord(self) -> str:
+        return ''.join(chr(gene) for gene in self.chromosome)
+
 def main():
     individual = Individual(4);
     individual.createChromosome();
     print(individual.chromosome)
+    print(individual.getWord());
 
 if __name__ == "__main__":
     main();
