@@ -1,5 +1,6 @@
 import yaml;
 import random;
+import math;
 
 class Config (object):
     _instance = None
@@ -21,12 +22,11 @@ class Config (object):
 
 class Individual (object):
     def __init__(self,
-                 chromosomeSize:int):
-        self.config = Config();
+                 chromosomeSize:int = None):
         self.chromosomeSize = chromosomeSize;
         self.chromosome = [];
         self.targetFunction = 0;
-        self.mutationRate = self.config.mutationRate;
+        self.mutationRate = Config().mutationRate;
 
     def createChromosome (self,
                           target:str=None,
@@ -34,6 +34,7 @@ class Individual (object):
                           mother:list=[]):
         if not(target is None):
             self.chromosome = [ord(char) for char in target];
+            self.chromosomeSize = len(self.chromosome);
         elif ((len(father)) != 0 and (len(mother) != 0)):
             self.chromosome = father + mother;
         else:
@@ -43,8 +44,7 @@ class Individual (object):
     def calculateTargetFunction(self,
                                 target:object):
         for i in range(0, len(target.chromosome),1):
-            if self.chromosome[i] == target.chromosome[i]:
-                self.targetFunction += 1;
+            self.targetFunction += math.sqrt((target.chromosome[i] - self.chromosome[i]) ** 2);
     
     def resetTargetFunction(self):
         self.targetFunction = 0;
@@ -55,11 +55,38 @@ class Individual (object):
     def getWord(self) -> str:
         return ''.join(chr(gene) for gene in self.chromosome)
 
+class Evolution (object):
+    def __init__(self,
+                 target:Individual):
+        self.population = [];
+        self.populationSize = Config().populationSize;
+        self.maxGeneration = Config().maxGeneration;
+        self.selectionRate = Config().selectionRate;
+        self.target = target;
+        self.generation = 0;
+
+    def startPoputation(self):
+        for i in range(0, self.populationSize, 1):
+            individual = Individual(self.target.chromosomeSize);
+            individual.createChromosome();
+            individual.calculateTargetFunction(self.target);
+            self.population.append(individual);
+
+    def rouletteSelection(self):
+        self.population = sorted(self.population, key=lambda individual: individual.targetFunction);
+        tfSomatory = sum(individual.targetFunction for individual in self.population);
+        proportion = [(individual.targetFunction / tfSomatory) for individual in self.population]
+        x = 0;
+
+
+
 def main():
-    individual = Individual(4);
-    individual.createChromosome();
-    print(individual.chromosome)
-    print(individual.getWord());
+    Targetndividual = Individual();
+    Targetndividual.createChromosome(target=input("Please, set de target word: "));
+    evolution = Evolution(Targetndividual);
+    evolution.startPoputation();
+    evolution.rouletteSelection();
+    x = 0;
 
 if __name__ == "__main__":
     main();
