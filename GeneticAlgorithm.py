@@ -1,6 +1,7 @@
 import yaml;
 import random;
 import math;
+import time;
 
 class Config (object):
     _instance = None
@@ -22,10 +23,13 @@ class Config (object):
 
 class Individual (object):
     def __init__(self,
+                 id:int,
                  chromosomeSize:int = None):
+        self.id = id;
         self.chromosomeSize = chromosomeSize;
         self.chromosome = [];
         self.targetFunction = 0;
+        self.rouletteProportion = 0.0;
         self.mutationRate = Config().mutationRate;
 
     def createChromosome (self,
@@ -71,12 +75,14 @@ class Evolution (object):
             individual.createChromosome();
             individual.calculateTargetFunction(self.target);
             self.population.append(individual);
+            time.sleep(0.005);
 
     def rouletteSelection(self):
         self.population = sorted(self.population, key=lambda individual: individual.targetFunction);
         tfSomatory = sum(individual.targetFunction for individual in self.population);
-        proportion = [(individual.targetFunction / tfSomatory) for individual in self.population]
+
         x = 0;
+        
 
 
 
