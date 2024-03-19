@@ -1,4 +1,4 @@
-mutationRate: 0.3
+mutationRate: 0.8
 populationSize: 2000
 maxGeneration: 5000
 selectionRate: 0.7

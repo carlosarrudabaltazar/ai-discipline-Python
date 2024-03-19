@@ -147,15 +147,12 @@ class Evolution (object):
                 break;
             
             actualGeneration += 1;
-            
-            
 
 def main():
     Targetndividual = Individual(-1);
     Targetndividual.createChromosome(target=input("Please, set de target word: "));
     evolution = Evolution(Targetndividual);
     evolution.start();
-    x = 0;
 
 if __name__ == "__main__":
     main();
