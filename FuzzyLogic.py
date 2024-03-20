@@ -3,7 +3,7 @@ import math;
 import statistics as stat;
 import matplotlib.pyplot as plt;
 
-class PertinenceFunction (object):
+class MeaningFunction (object):
     def __init__(self,
                  realScale:list,
                  a:float,
@@ -38,6 +38,25 @@ class PertinenceFunction (object):
                 secondTerm = (self.c - point) / (self.c - self.b);
         
             pertinence.append(max(min(firstTerm, secondTerm) , 0));
+        
+        return pertinence;
+
+    def getTrapezium(self) -> list:
+        pertinence = [];
+        for point in self.realScale:
+            firstTerm = 0.0;
+            secondTerm = 0.0;
+            if (self.a == self.b):
+                firstTerm = sys.maxsize;
+            else:
+                firstTerm = (point - self.a) / (self.b - self.a);
+
+            if (self.c == self.b):
+                secondTerm = sys.maxsize;
+            else:
+                secondTerm = (self.d - point) / (self.d - self.c);
+        
+            pertinence.append(max(min(firstTerm, 1, secondTerm) , 0));
         
         return pertinence;
 
