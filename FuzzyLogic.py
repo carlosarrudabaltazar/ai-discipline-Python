@@ -3,84 +3,17 @@ import math;
 import statistics as stat;
 import matplotlib.pyplot as plt;
 
-class MeaningCurve (object):
-    def __init__(self,
-                 realScale:list,
-                 a:float,
-                 b:float,
-                 c:float,
-                 d:float = None,
-                 function:str = "gauss"):
-        self.realScale = realScale;
-        self.a = a;
-        self.b = b;
-        self.c = c;
-        self.d = d;
-        self.selectedFunction = function;
-    
-    def getMeaningCurve(self) -> list:
-        match self.selectedFunction:
-            case "triangle":
-                return self.getTriangle();
-            case "gauss":
-                return self.getGauss();
-            case "trapezium":
-                return self.getTrapezium();
-
-    def getGauss(self) -> list:
-        pertinence = [];
-        for point in self.realScale:
-            pertinence.append(math.e ** ((-(1/2))*((point - self.c)/stat.stdev(self.realScale))**2));
-        return pertinence;
-
-    def getTriangle(self) -> list:
-        pertinence = [];
-        for point in self.realScale:
-            firstTerm = 0.0;
-            secondTerm = 0.0;
-            if (self.a == self.b):
-                firstTerm = sys.maxsize;
-            else:
-                firstTerm = (point - self.a) / (self.b - self.a);
-
-            if (self.c == self.b):
-                secondTerm = sys.maxsize;
-            else:
-                secondTerm = (self.c - point) / (self.c - self.b);
-        
-            pertinence.append(max(min(firstTerm, secondTerm) , 0));
-        
-        return pertinence;
-
-    def getTrapezium(self) -> list:
-        pertinence = [];
-        for point in self.realScale:
-            firstTerm = 0.0;
-            secondTerm = 0.0;
-            if (self.a == self.b):
-                firstTerm = sys.maxsize;
-            else:
-                firstTerm = (point - self.a) / (self.b - self.a);
-
-            if (self.c == self.b):
-                secondTerm = sys.maxsize;
-            else:
-                secondTerm = (self.d - point) / (self.d - self.c);
-        
-            pertinence.append(max(min(firstTerm, 1, secondTerm) , 0));
-        
-        return pertinence;
-
 class MeaningFunction (object):
     def __init__(self,
                  realScale:list,
-                 fuzzyScale:list):
+                 fuzzyScale:list,
+                 function:str = "gauss"):
         self.realScale = realScale;
         self.fuzzyScale = fuzzyScale;
-
-    def getMeaningFunction(self,
-                           function:str="gauss"):
-        meaningFunction = {};
+        self.selectedFunction = function;
+    
+    def getMeaningFunction(self) -> dict:
+        meaning = {};
         step = len(self.realScale) // (len(self.fuzzyScale) - 1);
         lastMax = 0;
         a = 0;
@@ -90,51 +23,128 @@ class MeaningFunction (object):
 
         for i in range(0, len(self.fuzzyScale),1):
             if (i == 0): 
-                a = lastMax;
-                b = lastMax;
+                a = (lastMax + step) / 2;
+                b = a;
                 c = lastMax + step;
-                meaningCurve = MeaningCurve(realScale=self.realScale,
-                                            a=a,
-                                            b=b,
-                                            c=c,
-                                            function=function);
-                meaningFunction[self.fuzzyScale[i]] = meaningCurve.getMeaningCurve();
+                d = c + b;
+                meaning[self.fuzzyScale[i]] = self.getMeaningCurve(a=a,
+                                                                   b=b,
+                                                                   c=c,
+                                                                   d=d);
                 lastMax = b;
             elif (i == (len(self.fuzzyScale) - 1)):
                 a = ultimoMaximo;
                 b = self.realScale[len(self.realScale) - 1];
                 c = self.realScale[len(self.realScale) - 1];
-                meaningCurve = MeaningCurve(realScale=self.realScale,
-                                            a=a,
-                                            b=b,
-                                            c=c,
-                                            function=function);
-                meaningFunction[self.fuzzyScale[i]] = meaningCurve.getMeaningCurve();
+                d = ultimoMaximo;
+                meaning[self.fuzzyScale[i]] = self.getMeaningCurve(a=a,
+                                                                   b=b,
+                                                                   c=c,
+                                                                   d=d);
                 ultimoMaximo = b;
             else:
                 a = lastMax;
                 b = lastMax + step;
                 c = b + step;
-                meaningCurve = MeaningCurve(realScale=self.realScale,
-                                            a=a,
-                                            b=b,
-                                            c=c,
-                                            function=function);
-                meaningFunction[self.fuzzyScale[i]] = meaningCurve.getMeaningCurve();
+                d = lastMax;
+                meaning[self.fuzzyScale[i]] = self.getMeaningCurve(a=a,
+                                                                   b=b,
+                                                                   c=c,
+                                                                   d=d);
                 ultimoMaximo = b;
+        return meaning;
+    
+    def getMeaningCurve(self,
+                        a:float,
+                        b:float,
+                        c:float,
+                        d:float) -> list:
+        match self.selectedFunction:
+            case "triangle":
+                return self.getTriangle(a=a,
+                                        b=b,
+                                        c=c);
+            case "gauss":
+                return self.getGauss(c=c);
+            case "trapezium":
+                return self.getTrapezium(a=a,
+                                         b=b,
+                                         c=c,
+                                         d=d);
 
+    def getGauss(self,
+                 c:float) -> list:
+        meaning = [];
+        for point in self.realScale:
+            meaning.append(math.e ** ((-(1/2))*((point - c)/stat.stdev(self.realScale))**2));
+        return meaning;
+
+    def getTriangle(self,
+                    a:float,
+                    b:float,
+                    c:float) -> list:
+        meaning = [];
+        for point in self.realScale:
+            firstTerm = 0.0;
+            secondTerm = 0.0;
+            if (a == b):
+                firstTerm = sys.maxsize;
+            else:
+                firstTerm = (point - a) / (b - a);
+
+            if (c == b):
+                secondTerm = sys.maxsize;
+            else:
+                secondTerm = (c - point) / (c - b);
+        
+            meaning.append(max(min(firstTerm, secondTerm) , 0));
+        
+        return meaning;
+
+    def getTrapezium(self,
+                     a:float,
+                     b:float,
+                     c:float,
+                     d:float) -> list:
+        meaning = [];
+        for point in self.realScale:
+            firstTerm = 0.0;
+            secondTerm = 0.0;
+            if (a == b):
+                firstTerm = sys.maxsize;
+            else:
+                firstTerm = (point - a) / (b - a);
+
+            if (c == d):
+                secondTerm = sys.maxsize;
+            else:
+                secondTerm = (d - point) / (d - c);
+        
+            meaning.append(max(min(firstTerm, 1, secondTerm), 0));
+        
+        return meaning;
 
 def main():
     x = [0,1,2,3,4,5,6,7,8,9,10];
-    pertinence = MeaningFunction(realScale = x,
-                                 a = 5,
-                                 b = 10,
-                                 c = 10);
-    print(pertinence.getGauss());
-    plt.plot(pertinence.getGauss())
+    y = ["ruim","bom","ótimo"];
+    meaningFunction = MeaningFunction(realScale = x,
+                                      fuzzyScale = y,
+                                      function="trapezium");
+    
+    z = meaningFunction.getTrapezium(0,0,2.5,5);
+    plt.plot(z)
     plt.show()
-    print(pertinence.getTriangle());
-    plt.plot(pertinence.getTriangle())
+    
+    meaning = meaningFunction.getMeaningFunction();
+
+    print(meaning["ruim"]);
+    plt.plot(meaning["ruim"])
+    plt.show()
+    print(meaning["bom"]);
+    plt.plot(meaning["bom"])
+    plt.show()
+    print(meaning["ótimo"]);
+    plt.plot(meaning["ótimo"])
     plt.show()
     x = 0;
 
