@@ -19,58 +19,45 @@ class MeaningFunction (object):
         a = 0;
         b = 0;
         c = 0;
-        d = 0;
 
         for i in range(0, len(self.fuzzyScale),1):
             if (i == 0): 
-                a = (lastMax + step) / 2;
+                a = lastMax;
                 b = a;
                 c = lastMax + step;
-                d = c + b;
-                meaning[self.fuzzyScale[i]] = self.getMeaningCurve(a=a,
-                                                                   b=b,
-                                                                   c=c,
-                                                                   d=d);
+                meaning[self.fuzzyScale[i]] = self.getMeaningCurve(a = a,
+                                                                   b = b,
+                                                                   c = c);
                 lastMax = b;
             elif (i == (len(self.fuzzyScale) - 1)):
                 a = ultimoMaximo;
                 b = self.realScale[len(self.realScale) - 1];
                 c = self.realScale[len(self.realScale) - 1];
-                d = ultimoMaximo;
-                meaning[self.fuzzyScale[i]] = self.getMeaningCurve(a=a,
-                                                                   b=b,
-                                                                   c=c,
-                                                                   d=d);
+                meaning[self.fuzzyScale[i]] = self.getMeaningCurve(a = a,
+                                                                   b = b,
+                                                                   c = c);
                 ultimoMaximo = b;
             else:
                 a = lastMax;
-                b = lastMax + step;
+                b = a + step;
                 c = b + step;
-                d = lastMax;
-                meaning[self.fuzzyScale[i]] = self.getMeaningCurve(a=a,
-                                                                   b=b,
-                                                                   c=c,
-                                                                   d=d);
+                meaning[self.fuzzyScale[i]] = self.getMeaningCurve(a = a,
+                                                                   b = b,
+                                                                   c = c);
                 ultimoMaximo = b;
         return meaning;
     
     def getMeaningCurve(self,
                         a:float,
                         b:float,
-                        c:float,
-                        d:float) -> list:
+                        c:float) -> list:
         match self.selectedFunction:
             case "triangle":
-                return self.getTriangle(a=a,
-                                        b=b,
-                                        c=c);
+                return self.getTriangle(a = a,
+                                        b = b,
+                                        c = c);
             case "gauss":
-                return self.getGauss(c=c);
-            case "trapezium":
-                return self.getTrapezium(a=a,
-                                         b=b,
-                                         c=c,
-                                         d=d);
+                return self.getGauss(c = b);
 
     def getGauss(self,
                  c:float) -> list:
@@ -101,48 +88,21 @@ class MeaningFunction (object):
         
         return meaning;
 
-    def getTrapezium(self,
-                     a:float,
-                     b:float,
-                     c:float,
-                     d:float) -> list:
-        meaning = [];
-        for point in self.realScale:
-            firstTerm = 0.0;
-            secondTerm = 0.0;
-            if (a == b):
-                firstTerm = sys.maxsize;
-            else:
-                firstTerm = (point - a) / (b - a);
-
-            if (c == d):
-                secondTerm = sys.maxsize;
-            else:
-                secondTerm = (d - point) / (d - c);
-        
-            meaning.append(max(min(firstTerm, 1, secondTerm), 0));
-        
-        return meaning;
-
 def main():
     x = [0,1,2,3,4,5,6,7,8,9,10];
     y = ["ruim","bom","ótimo"];
     meaningFunction = MeaningFunction(realScale = x,
                                       fuzzyScale = y,
-                                      function="trapezium");
-    
-    z = meaningFunction.getTrapezium(0,0,2.5,5);
-    plt.plot(z)
-    plt.show()
+                                      function = "gauss");
     
     meaning = meaningFunction.getMeaningFunction();
 
     print(meaning["ruim"]);
     plt.plot(meaning["ruim"])
-    plt.show()
+    #plt.show()
     print(meaning["bom"]);
     plt.plot(meaning["bom"])
-    plt.show()
+    #plt.show()
     print(meaning["ótimo"]);
     plt.plot(meaning["ótimo"])
     plt.show()
