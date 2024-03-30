@@ -1,5 +1,6 @@
 import sys;
 import math;
+from enum import Enum;
 import statistics as stat;
 import matplotlib.pyplot as plt;
 
@@ -7,12 +8,16 @@ class FuzzyOperation (Enum):
     fuzzyAnd=1;
     fuzzyOr=2;
     fuzzyNot=3;
-    
+
+class FuzzyMeaningFunction (Enum):
+    triangle=1;
+    gauss=2;
+     
 class MeaningFunction (object):
     def __init__(self,
                  realScale:list,
                  fuzzyScale:list,
-                 function:str = "gauss"):
+                 function:FuzzyMeaningFunction = FuzzyMeaningFunction.gauss):
         self.realScale = realScale;
         self.fuzzyScale = fuzzyScale;
         self.selectedFunction = function;
@@ -57,11 +62,11 @@ class MeaningFunction (object):
                         b:float,
                         c:float) -> list:
         match self.selectedFunction:
-            case "triangle":
+            case FuzzyMeaningFunction.triangle:
                 return self.getTriangle(a = a,
                                         b = b,
                                         c = c);
-            case "gauss":
+            case FuzzyMeaningFunction.gauss:
                 return self.getGauss(c = b);
 
     def getGauss(self,
@@ -110,38 +115,34 @@ class FuzzyHandler (object):
                   targetMeaningFunction:dict) -> float:
         divider = 0;
         dividend = 0;
+        keys = list(targetMeaningFunction.keys());
         
-        for key in targetMeaningFunction.keys():
-            meaningFunction = targetMeaningFunction[key];
-            lambdaValue = lambdaValues[key];
-            
-            for i in range(0, len(meaningFunction), 1):
-                if i >= lambdaValue:
-                    dividend += meaningFunction[i] * lambdaValue;  
+        for i in range(0, len(keys), 1):
+            meaningFunction = targetMeaningFunction[keys[i]];
+            lambdaValue = lambdaValues[keys[i]];
+            descendent = False;
+            for j in range(0, len(meaningFunction), 1):
+                if (i == (len(keys) - 1) and meaningFunction[j] >= lambdaValue):
+                    dividend += j * lambdaValue;  
+                    break;
+                elif (i > 0 and i < (len(keys) - 1) and meaningFunction[j] <= lambdaValue and descendent):
+                    dividend += j * lambdaValue;  
+                    break;
+                elif (i > 0 and meaningFunction[j] >= lambdaValue):
+                    descendent = True;
                     
             divider += lambdaValue;
         
         return dividend / divider;  
-
-def main():
-    x = [0,1,2,3,4,5,6,7,8,9,10];
-    y = ["ruim","bom","ótimo"];
-    meaningFunction = MeaningFunction(realScale = x,
-                                      fuzzyScale = y,
-                                      function = "gauss");
     
-    meaning = meaningFunction.getMeaningFunction();
-
-    print(meaning["ruim"]);
-    plt.plot(meaning["ruim"])
-    #plt.show()
-    print(meaning["bom"]);
-    plt.plot(meaning["bom"])
-    #plt.show()
-    print(meaning["ótimo"]);
-    plt.plot(meaning["ótimo"])
-    plt.show()
-    x = 0;
-
-if __name__ == "__main__":
-    main();
+    def fuzzyLogicOperation(self,
+                            fuzzyValueA:float,
+                            fuzzyOperation:FuzzyOperation,
+                            fuzzyValueB:float=None) -> float:
+        match fuzzyOperation:
+            case FuzzyOperation.fuzzyAnd:
+                return min(fuzzyValueA,fuzzyValueB);
+            case FuzzyOperation.fuzzyOr:
+                return max(fuzzyValueA,fuzzyValueB);
+            case fuzzyOperation.fuzzyNot:
+                return 1 - fuzzyValueA;
