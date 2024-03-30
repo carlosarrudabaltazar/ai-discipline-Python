@@ -3,6 +3,11 @@ import math;
 import statistics as stat;
 import matplotlib.pyplot as plt;
 
+class FuzzyOperation (Enum):
+    fuzzyAnd=1;
+    fuzzyOr=2;
+    fuzzyNot=3;
+    
 class MeaningFunction (object):
     def __init__(self,
                  realScale:list,
@@ -87,6 +92,36 @@ class MeaningFunction (object):
             meaning.append(max(min(firstTerm, secondTerm) , 0));
         
         return meaning;
+    
+class FuzzyHandler (object):
+        
+    def fuzzify(self,
+                sourceMeaningFunction:dict,
+                sourceValue:int) -> dict:
+        fuzzyfiedConcept = {};
+        
+        for key in sourceMeaningFunction.keys():
+            fuzzyfiedConcept[key] = sourceMeaningFunction[key][sourceValue];
+        
+        return fuzzyfiedConcept;
+    
+    def defuzzify(self,
+                  lambdaValues:dict,
+                  targetMeaningFunction:dict) -> float:
+        divider = 0;
+        dividend = 0;
+        
+        for key in targetMeaningFunction.keys():
+            meaningFunction = targetMeaningFunction[key];
+            lambdaValue = lambdaValues[key];
+            
+            for i in range(0, len(meaningFunction), 1):
+                if i >= lambdaValue:
+                    dividend += meaningFunction[i] * lambdaValue;  
+                    
+            divider += lambdaValue;
+        
+        return dividend / divider;  
 
 def main():
     x = [0,1,2,3,4,5,6,7,8,9,10];
