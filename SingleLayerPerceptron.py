@@ -30,11 +30,15 @@ def main():
                   trainSample=data,
                   w=w,
                   eta=eta,
+                  acceptableError=0,
                   trainRule=TrainRules.deltaRule);
 
     knowledge = train.train(verbose=True);
 
     print("Trained weight set: {}".format(knowledge));
-    
+
+    print(z);
+
+
 if __name__ == "__main__":
     main();

@@ -78,12 +78,14 @@ class Train (object):
                  trainSample:pd.DataFrame,
                  w:list,
                  eta:float,
+                 acceptableError:float=0,
                  trainRule:TrainRules=TrainRules.deltaRule):
         self.neuron = neuron;
         self.trainSample = trainSample;
         self.w = w;
         self.trainRule = trainRule;
         self.eta = eta;
+        self.accetableError = acceptableError;
         
     def train(self,
               verbose:bool=False) -> list:
@@ -92,7 +94,7 @@ class Train (object):
         globalError = None;
         epoch = 0;
 
-        while globalError != 0:
+        while globalError != self.accetableError:
             globalError = 0;
             localErrors = [];
 
