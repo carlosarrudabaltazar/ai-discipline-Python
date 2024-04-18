@@ -2,6 +2,7 @@ from FuzzyLogic import MeaningFunction;
 from FuzzyLogic import FuzzyHandler;
 from FuzzyLogic import FuzzyOperation;
 from FuzzyLogic import FuzzyMeaningFunction;
+from matplotlib import pyplot as plt;
 
 def main():
     option = 'y';
@@ -14,7 +15,7 @@ def main():
         foodMeaningFunction = MeaningFunction(realScale=list(range(0, 11)),
                                             fuzzyScale=["bad","good","excelent"],
                                             function=FuzzyMeaningFunction.triangle);
-        
+
         serviceMeaningFunction = MeaningFunction(realScale=list(range(0, 11)),
                                                 fuzzyScale=["bad","good","excelent"],
                                                 function=FuzzyMeaningFunction.triangle);
@@ -22,6 +23,26 @@ def main():
         tipMeaningFunction = MeaningFunction(realScale=list(range(0, 26)),
                                             fuzzyScale=["small","medium","large"],
                                             function=FuzzyMeaningFunction.triangle);
+        
+        ax1 = plt.subplot(311);
+        ax1.set_title("Food Meaning Function");
+        ax1.plot(foodMeaningFunction.getMeaningFunction()["bad"]);
+        ax1.plot(foodMeaningFunction.getMeaningFunction()["good"]);
+        ax1.plot(foodMeaningFunction.getMeaningFunction()["excelent"]);
+
+        ax2 = plt.subplot(312);
+        ax2.set_title("Service Meaning Function");
+        ax2.plot(serviceMeaningFunction.getMeaningFunction()["bad"]);
+        ax2.plot(serviceMeaningFunction.getMeaningFunction()["good"]);
+        ax2.plot(serviceMeaningFunction.getMeaningFunction()["excelent"]);
+
+        ax3 = plt.subplot(313);
+        ax3.set_title("Tip Meaning Function");
+        ax3.plot(tipMeaningFunction.getMeaningFunction()["small"]);
+        ax3.plot(tipMeaningFunction.getMeaningFunction()["medium"]);
+        ax3.plot(tipMeaningFunction.getMeaningFunction()["large"]);
+
+        plt.show()
         
         fuzzyHandler = FuzzyHandler();
         
