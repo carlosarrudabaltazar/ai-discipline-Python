@@ -115,7 +115,7 @@ class Train (object):
                 localErrors.append(yd - y);
 
             for error in localErrors:
-                globalError -= error;
+                globalError -= error**2;
     
             if verbose:
                 print("\tEpoch (" + str(epoch) +"): f(e) = " + str(globalError));

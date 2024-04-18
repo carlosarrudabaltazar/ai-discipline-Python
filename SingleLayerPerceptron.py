@@ -12,6 +12,11 @@ def main():
                          'x[0]' : [2,4],
                          'x[1]' : [2,4],
                          'y': [1,0]});
+                         
+    #data = pd.DataFrame({'bias': [-1,-1,-1,-1,-1,-1],
+    #                     'x[0]' : [1,2,3,4,5,6],
+    #                     'x[1]' : [1,2,3,4,5,6],
+    #                     'y': [1,1,1,0,0,0]});
 
     w = [-0.5441, 0.5562, -0.4074]
 
@@ -36,8 +41,6 @@ def main():
     knowledge = train.train(verbose=True);
 
     print("Trained weight set: {}".format(knowledge));
-
-    print(z);
 
 
 if __name__ == "__main__":
