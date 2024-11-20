@@ -122,7 +122,10 @@ class FuzzyHandler (object):
             lambdaValue = lambdaValues[keys[i]];
             descendent = False;
             for j in range(0, len(meaningFunction), 1):
-                if (i == (len(keys) - 1) and meaningFunction[j] >= lambdaValue):
+                if ((i == 0) and (meaningFunction[j] <= lambdaValue)):
+                    dividend += j * lambdaValue;
+                    break;
+                elif (i == (len(keys) - 1) and meaningFunction[j] >= lambdaValue):
                     dividend += j * lambdaValue;  
                     break;
                 elif (i > 0 and i < (len(keys) - 1) and meaningFunction[j] <= lambdaValue and descendent):

@@ -14,15 +14,15 @@ def main():
 
         foodMeaningFunction = MeaningFunction(realScale=list(range(0, 11)),
                                             fuzzyScale=["bad","good","excelent"],
-                                            function=FuzzyMeaningFunction.triangle);
+                                            function=FuzzyMeaningFunction.gauss);
 
         serviceMeaningFunction = MeaningFunction(realScale=list(range(0, 11)),
                                                 fuzzyScale=["bad","good","excelent"],
-                                                function=FuzzyMeaningFunction.triangle);
+                                                function=FuzzyMeaningFunction.gauss);
         
         tipMeaningFunction = MeaningFunction(realScale=list(range(0, 26)),
                                             fuzzyScale=["small","medium","large"],
-                                            function=FuzzyMeaningFunction.triangle);
+                                            function=FuzzyMeaningFunction.gauss);
         
         ax1 = plt.subplot(311);
         ax1.set_title("Food Meaning Function");
