@@ -2,7 +2,6 @@ import sys;
 import math;
 from enum import Enum;
 import statistics as stat;
-import matplotlib.pyplot as plt;
 
 class FuzzyOperation (Enum):
     fuzzyAnd=1;
@@ -24,7 +23,7 @@ class MeaningFunction (object):
     
     def getMeaningFunction(self) -> dict:
         meaning = {};
-        step = len(self.realScale) // (len(self.fuzzyScale) - 1);
+        step = len(self.realScale) // len(self.fuzzyScale);
         lastMax = 0;
         a = 0;
         b = 0;
@@ -38,23 +37,22 @@ class MeaningFunction (object):
                 meaning[self.fuzzyScale[i]] = self.getMeaningCurve(a = a,
                                                                    b = b,
                                                                    c = c);
-                lastMax = b;
+                lastMax = c;
             elif (i == (len(self.fuzzyScale) - 1)):
-                a = ultimoMaximo;
-                b = self.realScale[len(self.realScale) - 1];
-                c = self.realScale[len(self.realScale) - 1];
+                a = lastMax + 1;
+                b = len(self.realScale) - 1;
+                c = len(self.realScale) - 1;
                 meaning[self.fuzzyScale[i]] = self.getMeaningCurve(a = a,
                                                                    b = b,
                                                                    c = c);
-                ultimoMaximo = b;
             else:
-                a = lastMax;
-                b = a + step;
-                c = b + step;
+                b = lastMax + round(step / 2);
+                a = b - step;
+                c = b + step - 1;
                 meaning[self.fuzzyScale[i]] = self.getMeaningCurve(a = a,
                                                                    b = b,
                                                                    c = c);
-                ultimoMaximo = b;
+                lastMax = b;
         return meaning;
     
     def getMeaningCurve(self,
@@ -63,17 +61,23 @@ class MeaningFunction (object):
                         c:float) -> list:
         match self.selectedFunction:
             case FuzzyMeaningFunction.triangle:
-                return self.getTriangle(a = a,
-                                        b = b,
-                                        c = c);
+                return self.getTriangle(a = self.realScale[a],
+                                        b = self.realScale[b],
+                                        c = self.realScale[c]);
             case FuzzyMeaningFunction.gauss:
-                return self.getGauss(c = b);
+                return self.getGauss(a = self.realScale[a],
+                                     b = self.realScale[b],
+                                     c = self.realScale[c]);
 
     def getGauss(self,
+                 a:float,
+                 b:float,
                  c:float) -> list:
-        meaning = [];
-        for point in self.realScale:
-            meaning.append(math.e ** ((-(1/2))*((point - c)/stat.stdev(self.realScale))**2));
+        meaning = [0] * len(self.realScale);
+        idxA = self.realScale.index(a);
+        idxC = self.realScale.index(c);
+        for i in range(idxA, idxC + 1, 1):
+            meaning[i] = (math.e ** ((-(1/2))*((self.realScale[i] - b)/stat.stdev(self.realScale[idxA:idxC]))**2));
         return meaning;
 
     def getTriangle(self,
@@ -102,11 +106,12 @@ class FuzzyHandler (object):
         
     def fuzzify(self,
                 sourceMeaningFunction:dict,
+                realScale:list,
                 sourceValue:int) -> dict:
         fuzzyfiedConcept = {};
-        
+        index = realScale.index(sourceValue);
         for key in sourceMeaningFunction.keys():
-            fuzzyfiedConcept[key] = sourceMeaningFunction[key][sourceValue];
+            fuzzyfiedConcept[key] = sourceMeaningFunction[key][index];
         
         return fuzzyfiedConcept;
     
