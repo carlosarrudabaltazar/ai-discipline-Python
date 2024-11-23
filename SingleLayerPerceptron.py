@@ -5,7 +5,7 @@ from NeuralNetworkTools import ActivationFunctions;
 from NeuralNetworkTools import TrainRules;
 
 def main():
-    theta = 0.8417
+    theta = 0.0
     eta = 0.1
 
     data = pd.DataFrame({'bias': [-1,-1],
@@ -20,9 +20,6 @@ def main():
 
     w = [-0.5441, 0.5562, -0.4074]
 
-    e = 1
-    iteration = 0
-    
     print("Perceptron Neural Network\n\nParameters:");
     print("\n * Wieghts: {}".format(w) + 
           "\n * Sample: \n\n{}".format(data) + 

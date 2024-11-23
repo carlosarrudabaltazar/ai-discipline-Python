@@ -90,7 +90,6 @@ class Train (object):
     def train(self,
               verbose:bool=False) -> list:
         y = None;
-        tmpWieghts = None;
         globalError = None;
         epoch = 0;
 
