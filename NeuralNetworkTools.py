@@ -5,11 +5,12 @@ import operator;
 
 class ActivationFunctions (Enum):
     stepFunction = 1;
-    linearFunction = 2;
-    sigmoidFunction = 3;
-    tanhFunction = 4;
-    reLUFunction = 5;
-    leakyreLUFunction = 6;
+    stepNegativeFunction = 2;
+    linearFunction = 3;
+    sigmoidFunction = 4;
+    tanhFunction = 5;
+    reLUFunction = 6;
+    leakyreLUFunction = 7;
     
 class TrainRules (Enum):
     deltaRule = 1;
@@ -25,7 +26,14 @@ class ActivationFunction (object):
             return 1;
         else:
             return 0;
-        
+
+    def getNegativeStep(self,
+                        summation:float) -> float:
+        if summation >= self.theta:
+            return 1;
+        else:
+            return -1;
+
     def getLinear(self,
                   summation:float) -> float:
         return summation;
@@ -61,6 +69,8 @@ class Neuron (ActivationFunction):
         match self.activationFunction:
             case ActivationFunctions.stepFunction:
                 return super().getStep(summation);
+            case ActivationFunctions.stepNegativeFunction:
+                return super().getNegativeStep(summation);
             case ActivationFunctions.linearFunction:
                 return super().getLinear(summation);
             case ActivationFunctions.sigmoidFunction:
@@ -106,10 +116,10 @@ class Train (object):
                 match self.trainRule:
                     case TrainRules.deltaRule:
                         self.w = self.getDeltaRuleCorrection(x=x,
-                                                            w=self.w,
-                                                            eta=self.eta,
-                                                            y=y,
-                                                            yd=yd);
+                                                             w=self.w,
+                                                             eta=self.eta,
+                                                             y=y,
+                                                             yd=yd);
     
                 localErrors.append(yd - y);
 
