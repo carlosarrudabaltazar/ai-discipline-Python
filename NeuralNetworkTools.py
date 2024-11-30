@@ -97,8 +97,8 @@ class Train (object):
         self.eta = eta;
         self.accetableError = acceptableError;
         
-    def train(self,
-              verbose:bool=False) -> list:
+    def getTrainedWieghts(self,
+                          verbose:bool=False) -> list:
         y = None;
         globalError = None;
         epoch = 0;
@@ -147,3 +147,39 @@ class Train (object):
             newWeights.append(w[i] + eta * (yd - y) * x[i]);
 
         return newWeights;
+    
+class Test (object):
+    def __init__(self,
+                 neuron:Neuron,
+                 testSample:pd.DataFrame,
+                 trainedW:list):
+        self.neuron = neuron;
+        self.testSample = testSample;
+        self.trainedW = trainedW;
+        
+    def getConfusionMatrix(self) -> dict:
+        y = [];
+        truePositive = 0;
+        trueNegative = 0;
+        falsePositive = 0;
+        falseNegative = 0;
+        for i in range(0, self.testSample[self.testSample.columns[0]].count(),1):
+            x = self.testSample.iloc[i,0:len(self.testSample.columns)-1].tolist();
+            yd = self.testSample.iloc[i,len(self.testSample.columns)-1];
+            y.append(self.neuron.getActivation(x=x,
+                                               w=self.trainedW));
+            
+            if y[i] == 1 and yd == 1:
+                truePositive += 1;
+            elif y[i] == 0 and yd == 0:
+                trueNegative += 1;
+            elif y[i] == 0 and yd == 1:
+                falseNegative += 1;
+            elif y[i] == 1 and yd == 0:
+                falsePositive += 1;
+        
+        self.testSample = self.testSample.assign(predicted=y);
+        return {"truePositive":truePositive,
+                "trueNegative":trueNegative,
+                "falsePositive":falsePositive,
+                "falseNegative":falseNegative};

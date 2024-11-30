@@ -35,7 +35,7 @@ def main():
                   acceptableError=0,
                   trainRule=TrainRules.deltaRule);
 
-    knowledge = train.train(verbose=True);
+    knowledge = train.getTrainedWieghts(verbose=True);
 
     print("Trained weight set: {}".format(knowledge));
 
